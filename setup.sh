@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 echo "Installing packages..."
 sudo apt-get update
-sudo apt-get install -y cage wlr-randr python3-pygame
+sudo apt-get install -y ddcutil python3-pygame
 
 echo "Locking down the network..."
 sudo systemctl disable --now ssh || true

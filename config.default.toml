@@ -17,6 +17,6 @@ fade_seconds = 2
 volume = 1.0
 second_hand = false
 
-# Shell commands that sleep and wake the screen.
-screen_off_cmd = "wlr-randr --output HDMI-A-1 --off"
-screen_on_cmd = "wlr-randr --output HDMI-A-1 --on"
+# Shell commands that sleep and wake the screen. These send the monitor's power command over the HDMI cable (DDC/CI).
+screen_off_cmd = "ddcutil setvcp d6 4"
+screen_on_cmd = "ddcutil setvcp d6 1"

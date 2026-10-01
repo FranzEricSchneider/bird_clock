@@ -28,7 +28,7 @@ git clone https://github.com/FranzEricSchneider/bird_clock.git
 cd bird_clock && ./setup.sh && sudo reboot
 ```
 
-`setup.sh` installs `cage`, `wlr-randr` and `pygame`, and disables SSH. It also turns Wi-Fi and Bluetooth off at every boot and logs in automatically on the first console at boot, where `run.sh` starts the clock. If the clock crashes, it is not restarted: the console stays on screen until a reboot. Running it again is safe.
+`setup.sh` installs `ddcutil` and `pygame`, and disables SSH. It also turns Wi-Fi and Bluetooth off at every boot and logs in automatically on the first console at boot, where `run.sh` starts the clock. If the clock crashes, it is not restarted: the console stays on screen until a reboot. Running it again is safe.
 
 ## Bird files
 
@@ -57,11 +57,12 @@ tools/install_assets.sh /media/usb/bird-assets     # on the Pi
 
 ## Maintenance
 
-Plug in a keyboard and press Ctrl+Alt+F2 for a login prompt. The clock itself runs on the first console.
+Plug in a keyboard, wait about 10 seconds for the screen to wake, and press Escape. The clock quits and leaves a logged-in prompt on screen. Ctrl+Alt+F2 does not work while the clock runs. Reboot to start the clock again.
 
 - **Set the time:** `sudo date -s "2026-09-30 14:05"`
+- **Turn on Wi-Fi:** `sudo nmcli radio wifi on`, then wait about 15 seconds for it to connect. `hostname -I` shows the Pi's address. `sudo nmcli radio wifi off` or a reboot turns it off again.
 - **Update:** `sudo nmcli radio wifi on && sleep 15 && git pull; sudo reboot` (Wi-Fi turns off again at boot)
-- **Logs:** `journalctl -t birdclock`
+- **Logs:** `journalctl -t birdclock`. Raspberry Pi OS keeps logs in memory, so they cover only the current boot.
 
 Wi-Fi is turned off again at every boot, even if it was left on.
 
@@ -73,7 +74,7 @@ The defaults are in `config.default.toml`: quiet hours, timing, volume and the s
 
 - The display, speaker (`speaker-test -c2 -t wav`), keyboard and mouse all work. If sound comes out of the wrong output, change it with `sudo raspi-config` → System Options → Audio.
 - **Power:** after a while running, `vcgencmd get_throttled` should print `throttled=0x0`. Anything else means the supply is too weak; use the official 5.1V one.
-- **Screen sleep:** run `tools/screen_test.sh` from Ctrl+Alt+F2. The screen should go into power-save mode (not "No signal", and not a lit black screen) and wake again, 20 times in a row. If it doesn't, change `screen_off_cmd`/`screen_on_cmd`: check the output name with `wlr-randr`, or use HDMI-CEC (`cec-ctl`) for TVs.
+- **Screen sleep:** press Escape to quit the clock, then run `tools/screen_test.sh`. The screen should go into power-save mode (not "No signal", and not a lit black screen) and wake again, 20 times in a row. If it doesn't, the monitor may not accept power commands over HDMI (`ddcutil detect` shows whether it answers). Change `screen_off_cmd`/`screen_on_cmd`, for example to HDMI-CEC (`cec-ctl`) for TVs.
 
 ## Development
 
