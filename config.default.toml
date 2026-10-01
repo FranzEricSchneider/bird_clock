@@ -1,0 +1,22 @@
+# Default settings. To change one, put just that line in config.toml.
+
+assets = "~/bird-assets"
+
+# No chimes from quiet_start:00 until quiet_end:00 (24-hour). Set equal to disable.
+quiet_start = 22
+quiet_end = 7
+
+wake_before = 60   # seconds the screen wakes before a chime
+sleep_after = 60   # seconds it stays on after
+plays_min = 1      # the sound plays a random number of times in this range,
+plays_max = 3
+max_sound_seconds = 30  # but only as many plays as fit in this time (always at least one)
+pause = 1.0        # seconds between plays
+name_seconds = 5   # how long the name shows after the last play
+fade_seconds = 2
+volume = 1.0
+second_hand = false
+
+# Shell commands that sleep and wake the screen.
+screen_off_cmd = "wlr-randr --output HDMI-A-1 --off"
+screen_on_cmd = "wlr-randr --output HDMI-A-1 --on"
