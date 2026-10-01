@@ -40,7 +40,7 @@ def test_no_chime_in_quiet_hours():
     assert should_chime(at(6, 59, 59), at(7), CFG, False)
 
 
-def test_quiet_hours_chime_with_keyboard_or_mouse():
+def test_quiet_hours_chime_with_keyboard():
     assert should_chime(at(21, 59, 59), at(22), CFG, True)
     assert not should_chime(at(22), at(22, 0, 1), CFG, True)
 

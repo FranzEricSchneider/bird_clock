@@ -1,12 +1,12 @@
-"""Screen power and keyboard/mouse detection."""
+"""Screen power and keyboard detection."""
 
 import glob
 import subprocess
 
 
 def input_present():
-    """True if a USB keyboard or mouse is plugged in."""
-    return bool(glob.glob("/dev/input/by-id/*-event-kbd") + glob.glob("/dev/input/by-id/*-event-mouse"))
+    """True if a USB keyboard is plugged in."""
+    return bool(glob.glob("/dev/input/by-id/*-event-kbd"))
 
 
 def set_screen(on, cfg):

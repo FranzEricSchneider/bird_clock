@@ -22,7 +22,7 @@ def play_count(sound_seconds, cfg, rng):
 def should_chime(prev, now, cfg, input_present):
     """True once, when the clock first reaches the top of an hour.
 
-    Quiet hours chime only while a keyboard or mouse is plugged in (and then silently, see Chime).
+    Quiet hours chime only while a keyboard is plugged in (and then silently, see Chime).
     """
     if prev.hour == now.hour or now.minute != 0:
         return False
