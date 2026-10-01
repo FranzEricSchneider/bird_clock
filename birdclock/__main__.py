@@ -24,9 +24,9 @@ def load_config():
 
 
 class Chime:
-    """One hourly bird: plays its sound a few times, shows its name, then fades out."""
+    """One hourly bird: plays its sound a few times, shows its name, then fades out. Silent skips the sound."""
 
-    def __init__(self, folder, cfg, t, size):
+    def __init__(self, folder, cfg, t, size, silent):
         self.cfg = cfg
         self.image = pygame.transform.smoothscale(pygame.image.load(folder / "image.png").convert_alpha(), (size, size))
         name_file = folder / "name.txt"
@@ -34,7 +34,7 @@ class Chime:
         sounds = sorted((folder / "sounds").glob("*.ogg"))
         self.sound = None
         self.plays_left = 0
-        if sounds and pygame.mixer.get_init():
+        if sounds and not silent and pygame.mixer.get_init():
             self.sound = pygame.mixer.Sound(random.choice(sounds))
             self.sound.set_volume(cfg["volume"])
             self.plays_left = schedule.play_count(self.sound.get_length(), cfg, random)
@@ -100,10 +100,11 @@ def main():
 
         t = time.monotonic()
         current = now()
-        if not chime and schedule.should_chime(prev, current, cfg):
+        input_present = hardware.input_present()
+        if not chime and schedule.should_chime(prev, current, cfg, input_present):
             folder = assets / schedule.folder_for_hour(current.hour)
             try:
-                chime = Chime(folder, cfg, t, bird_size)
+                chime = Chime(folder, cfg, t, bird_size, silent=schedule.is_quiet(current.hour, cfg))
             except (OSError, pygame.error) as e:
                 print(f"Skipping {folder}: {e}", flush=True)
         prev = current
@@ -112,7 +113,7 @@ def main():
 
         upcoming = schedule.upcoming_chime_hour(current, cfg)
         waking = upcoming is not None and (assets / schedule.folder_for_hour(upcoming)).is_dir()
-        want_on = bool(chime) or waking or t - chime_ended < cfg["sleep_after"] or hardware.input_present()
+        want_on = bool(chime) or waking or t - chime_ended < cfg["sleep_after"] or input_present
         if want_on != screen_on:
             screen_on = want_on
             if not args.window:

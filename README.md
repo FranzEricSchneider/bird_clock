@@ -9,7 +9,7 @@ Each hour, outside quiet hours (default 22:00–07:00):
 2. On the hour, the bird's picture appears over the clock, and one of its sounds plays 1–3 times (up to 30 seconds total).
 3. The bird's name appears, the bird fades out, and the screen sleeps about 1 minute later.
 
-Between chimes the screen goes into power-save mode instead of showing black. Plugging in a USB keyboard or mouse keeps it on. The Pi's clock is trusted as-is. Wi-Fi, Bluetooth and SSH stay off, so the clock is safe to leave running.
+Between chimes the screen goes into power-save mode instead of showing black. Plugging in a USB keyboard or mouse keeps it on, and during quiet hours it also shows each hour's bird and name, without sound. The Pi's clock is trusted as-is. Wi-Fi, Bluetooth and SSH stay off, so the clock is safe to leave running.
 
 ## Hardware
 
@@ -28,7 +28,7 @@ git clone https://github.com/FranzEricSchneider/bird_clock.git
 cd bird_clock && ./setup.sh && sudo reboot
 ```
 
-`setup.sh` installs `cage`, `wlr-randr` and `pygame`, and disables SSH. It also turns Wi-Fi and Bluetooth off at every boot and starts the clock on boot, restarting it if it crashes. Running it again is safe.
+`setup.sh` installs `cage`, `wlr-randr` and `pygame`, and disables SSH. It also turns Wi-Fi and Bluetooth off at every boot and logs in automatically on the first console at boot, where `run.sh` starts the clock. If the clock crashes, it is not restarted: the console stays on screen until a reboot. Running it again is safe.
 
 ## Bird files
 
@@ -60,8 +60,8 @@ tools/install_assets.sh /media/usb/bird-assets     # on the Pi
 Plug in a keyboard and press Ctrl+Alt+F2 for a login prompt. The clock itself runs on the first console.
 
 - **Set the time:** `sudo date -s "2026-09-30 14:05"`
-- **Update:** `sudo rfkill unblock wifi && git pull && sudo systemctl restart birdclock; sudo rfkill block wifi`
-- **Logs:** `journalctl -u birdclock`
+- **Update:** `sudo nmcli radio wifi on && sleep 15 && git pull; sudo reboot` (Wi-Fi turns off again at boot)
+- **Logs:** `journalctl -t birdclock`
 
 Wi-Fi is turned off again at every boot, even if it was left on.
 

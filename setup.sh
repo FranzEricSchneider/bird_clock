@@ -13,40 +13,29 @@ sudo systemctl disable --now ssh || true
 sudo tee /etc/systemd/system/radios-off.service >/dev/null <<EOF
 [Unit]
 Description=Turn off Wi-Fi and Bluetooth at every boot
-After=systemd-rfkill.service
+After=systemd-rfkill.service NetworkManager.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/rfkill block wifi bluetooth
+ExecStart=/usr/sbin/rfkill block bluetooth
+# NetworkManager turns Wi-Fi back on after an rfkill block, so turn it off through NetworkManager.
+ExecStart=/usr/bin/nmcli radio wifi off
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
 echo "Setting the clock to start on boot..."
-sudo tee /etc/systemd/system/birdclock.service >/dev/null <<EOF
-[Unit]
-Description=Bird clock
-After=systemd-user-sessions.service radios-off.service
-Conflicts=getty@tty1.service
-
+# Log in automatically on tty1, then ~/.profile starts the clock there.
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf >/dev/null <<EOF
 [Service]
-User=$USER
-WorkingDirectory=$PWD
-PAMName=login
-TTYPath=/dev/tty1
-UtmpIdentifier=tty1
-UtmpMode=user
-StandardInput=tty-fail
-Environment=XDG_SESSION_TYPE=wayland SDL_VIDEODRIVER=wayland
-ExecStart=/usr/bin/cage -- /usr/bin/python3 -m birdclock
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
+ExecStart=
+ExecStart=-/sbin/agetty --autologin $USER --noclear %I \$TERM
 EOF
+start_line="[ \"\$(tty)\" = /dev/tty1 ] && $PWD/run.sh"
+grep -qxF "$start_line" ~/.profile 2>/dev/null || echo "$start_line" >> ~/.profile
 
 sudo systemctl daemon-reload
-sudo systemctl enable radios-off.service birdclock.service
+sudo systemctl enable radios-off.service
 echo "Done. Reboot to start the clock: sudo reboot"

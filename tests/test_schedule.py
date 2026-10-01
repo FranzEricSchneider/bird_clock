@@ -31,17 +31,23 @@ def test_quiet_hours_disabled():
 
 
 def test_chimes_once_at_top_of_hour():
-    assert should_chime(at(7, 59, 59), at(8), CFG)
-    assert not should_chime(at(8), at(8, 0, 1), CFG)
+    assert should_chime(at(7, 59, 59), at(8), CFG, False)
+    assert not should_chime(at(8), at(8, 0, 1), CFG, False)
 
 
 def test_no_chime_in_quiet_hours():
-    assert not should_chime(at(21, 59, 59), at(22), CFG)
-    assert should_chime(at(6, 59, 59), at(7), CFG)
+    assert not should_chime(at(21, 59, 59), at(22), CFG, False)
+    assert should_chime(at(6, 59, 59), at(7), CFG, False)
+
+
+def test_quiet_hours_chime_with_keyboard_or_mouse():
+    assert should_chime(at(21, 59, 59), at(22), CFG, True)
+    assert not should_chime(at(22), at(22, 0, 1), CFG, True)
 
 
 def test_no_chime_when_clock_is_set_mid_hour():
-    assert not should_chime(at(8, 10), at(14, 37), CFG)
+    assert not should_chime(at(8, 10), at(14, 37), CFG, False)
+    assert not should_chime(at(8, 10), at(14, 37), CFG, True)
 
 
 def test_play_count_capped_by_length():

@@ -19,9 +19,14 @@ def play_count(sound_seconds, cfg, rng):
     return min(rng.randint(cfg["plays_min"], cfg["plays_max"]), fits)
 
 
-def should_chime(prev, now, cfg):
-    """True once, when the clock first reaches the top of a non-quiet hour."""
-    return prev.hour != now.hour and now.minute == 0 and not is_quiet(now.hour, cfg)
+def should_chime(prev, now, cfg, input_present):
+    """True once, when the clock first reaches the top of an hour.
+
+    Quiet hours chime only while a keyboard or mouse is plugged in (and then silently, see Chime).
+    """
+    if prev.hour == now.hour or now.minute != 0:
+        return False
+    return input_present or not is_quiet(now.hour, cfg)
 
 
 def upcoming_chime_hour(now, cfg):
