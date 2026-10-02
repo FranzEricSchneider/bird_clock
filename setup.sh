@@ -25,6 +25,22 @@ ExecStart=/usr/bin/nmcli radio wifi off
 WantedBy=multi-user.target
 EOF
 
+echo "Setting the time from time.txt at every boot..."
+# The Pi has no clock battery and Wi-Fi is off, so it can't keep the time itself.
+sudo tee /etc/systemd/system/set-time.service >/dev/null <<EOF
+[Unit]
+Description=Set the time from time.txt
+After=fake-hwclock.service systemd-timesyncd.service
+Before=getty@tty1.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'date -s "\$\$(cat $PWD/time.txt)"'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 echo "Setting the clock to start on boot..."
 # Log in automatically on tty1, then ~/.profile starts the clock there.
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
@@ -37,5 +53,5 @@ start_line="[ \"\$(tty)\" = /dev/tty1 ] && $PWD/run.sh"
 grep -qxF "$start_line" ~/.profile 2>/dev/null || echo "$start_line" >> ~/.profile
 
 sudo systemctl daemon-reload
-sudo systemctl enable radios-off.service
+sudo systemctl enable radios-off.service set-time.service
 echo "Done. Reboot to start the clock: sudo reboot"

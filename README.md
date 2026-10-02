@@ -59,7 +59,7 @@ tools/install_assets.sh /media/usb/bird-assets     # on the Pi
 
 Plug in a keyboard, wait about 10 seconds for the screen to wake, and press Escape. The clock quits and leaves a logged-in prompt on screen. Ctrl+Alt+F2 does not work while the clock runs. Reboot to start the clock again.
 
-- **Set the time:** `sudo date -s "2026-09-30 14:05"`
+- **Set the time:** `echo 14:05 > ~/bird_clock/time.txt`, then `sudo reboot`. Every boot sets the clock to the time in `time.txt` (11:55 by default), because the Pi has no clock battery. An edited `time.txt` blocks `git pull`; `git checkout time.txt` clears it.
 - **Turn on Wi-Fi:** `sudo nmcli radio wifi on`, then wait about 15 seconds for it to connect. `hostname -I` shows the Pi's address. `sudo nmcli radio wifi off` or a reboot turns it off again.
 - **Update:** `sudo nmcli radio wifi on && sleep 15 && git pull; sudo reboot` (Wi-Fi turns off again at boot)
 - **Volume:** `amixer -c 0 -M sset PCM 90%` for the 3.5mm jack (`-M` makes the percentage match how loud it sounds; without it, 80% is very quiet), then `sudo alsactl store` to keep it after a power cut. The clock's own `volume` setting (0 to 1) scales on top of this.
